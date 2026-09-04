@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   ci-cd:
-    uses: my-banking-app/ci-templates/.github/workflows/aws-angular-s3-ci-cd.yml@v1.3.5
+    uses: my-banking-app/ci-templates/.github/workflows/aws-angular-s3-ci-cd.yml@v1.3.7
     with:
       service-name: code-insight-ai-web
       sonar-project-key: camilobr89_code-insight-ai-web
