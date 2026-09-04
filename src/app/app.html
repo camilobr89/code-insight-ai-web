@@ -1,0 +1,66 @@
+<main class="page">
+  <header class="hero">
+    <h1>🔎 Code Insight AI</h1>
+    <p>Ingeniería inversa automatizada de repositorios</p>
+  </header>
+
+  <!-- Sección 1: Carga de repositorio -->
+  <section class="card">
+    <h2>1. Cargar repositorio</h2>
+    <div class="loader">
+      <input
+        type="url"
+        name="repoUrl"
+        placeholder="https://github.com/usuario/proyecto"
+        [ngModel]="repoUrl()"
+        (ngModelChange)="repoUrl.set($event)"
+      />
+      <button type="button" (click)="analyze()" [disabled]="loading()">
+        {{ loading() ? 'Analizando…' : 'Analizar' }}
+      </button>
+    </div>
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+  </section>
+
+  @if (result(); as r) {
+    <!-- Sección 2: Resultado del análisis -->
+    <section class="card">
+      <h2>2. Resultado del análisis</h2>
+      <p class="summary">{{ r.summary }}</p>
+      <div class="grid">
+        <div class="stat"><span>Proyecto</span><strong>{{ r.projectName }}</strong></div>
+        <div class="stat"><span>Lenguaje</span><strong>{{ r.mainLanguage }}</strong></div>
+        <div class="stat"><span>Framework</span><strong>{{ r.framework }}</strong></div>
+        <div class="stat"><span>Arquitectura</span><strong>{{ r.architecture }}</strong></div>
+        <div class="stat"><span>Archivos (aprox.)</span><strong>{{ r.fileCount }}</strong></div>
+      </div>
+    </section>
+
+    <!-- Sección 3: Hallazgos -->
+    <section class="card">
+      <h2>3. Hallazgos</h2>
+      <div class="findings">
+        <div>
+          <h3>🧩 Componentes</h3>
+          <ul>
+            @for (c of r.components; track c) { <li>{{ c }}</li> }
+          </ul>
+        </div>
+        <div>
+          <h3>💡 Recomendaciones</h3>
+          <ul>
+            @for (rec of r.recommendations; track rec) { <li>{{ rec }}</li> }
+          </ul>
+        </div>
+        <div>
+          <h3>⚠️ Riesgos</h3>
+          <ul>
+            @for (risk of r.risks; track risk) { <li>{{ risk }}</li> }
+          </ul>
+        </div>
+      </div>
+    </section>
+  }
+</main>

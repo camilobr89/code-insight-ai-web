@@ -1,0 +1,27 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write   # requerido para autenticación OIDC con AWS
+  contents: read
+
+jobs:
+  ci-cd:
+    uses: my-banking-app/ci-templates/.github/workflows/aws-angular-s3-ci-cd.yml@v1.3.5
+    with:
+      service-name: code-insight-ai-web
+      sonar-project-key: camilobr89_code-insight-ai-web
+      node-version: '22'
+      api-url: ${{ vars.API_URL }}
+      aws-region: us-east-1
+      s3-bucket: ${{ vars.S3_BUCKET }}
+      cloudfront-distribution-id: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+      dist-path: dist/code-insight-ai-web/browser
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
