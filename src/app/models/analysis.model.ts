@@ -10,9 +10,12 @@ export interface Analysis {
   components: string[];
   recommendations: string[];
   risks: string[];
+  evidence: string[];
   createdAt?: string;
+  cached: boolean;
 }
 
 export interface AnalyzeRequest {
   repoUrl: string;
+  forceRefresh?: boolean;
 }
