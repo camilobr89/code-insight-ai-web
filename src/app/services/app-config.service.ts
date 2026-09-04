@@ -1,14 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
-/**
- * Carga la configuración de runtime desde `config.json` (servido junto a la app).
- *
- * El pipeline del API reescribe ese archivo en S3 tras cada despliegue con la URL
- * actual del backend, de modo que si la IP de la tarea Fargate cambia, el frontend
- * la toma automáticamente al recargar — sin necesidad de reconstruir el bundle.
- * Si el fetch falla (p. ej. en local), usa el valor de `environment` como fallback.
- */
+/** Carga `config.json` en runtime; el pipeline lo reescribe en S3 tras cada deploy del API. */
 @Injectable({ providedIn: 'root' })
 export class AppConfigService {
   private _apiUrl = environment.apiUrl;
@@ -27,7 +20,7 @@ export class AppConfigService {
         }
       }
     } catch {
-      // Sin config.json disponible: se mantiene el fallback de environment.
+      // ignore, keep environment default
     }
   }
 }

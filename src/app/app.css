@@ -76,6 +76,31 @@
   margin: 0.75rem 0 0;
 }
 
+.force-refresh {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #334155;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
+}
+
+.badge-fresh {
+  background: #14532d;
+  color: #86efac;
+}
+
 .summary {
   line-height: 1.5;
 }
@@ -122,4 +147,72 @@
   margin: 0;
   padding-left: 1.1rem;
   line-height: 1.6;
+}
+
+.evidence {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #334155;
+}
+
+.evidence h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.evidence ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  line-height: 1.7;
+}
+
+.evidence code {
+  background: #0f172a;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.muted {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-item {
+  width: 100%;
+  text-align: left;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.history-item:hover {
+  border-color: #38bdf8;
+}
+
+.history-item span {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.history-url {
+  font-size: 0.75rem !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

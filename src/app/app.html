@@ -4,7 +4,6 @@
     <p>Ingeniería inversa automatizada de repositorios</p>
   </header>
 
-  <!-- Sección 1: Carga de repositorio -->
   <section class="card">
     <h2>1. Cargar repositorio</h2>
     <div class="loader">
@@ -19,15 +18,27 @@
         {{ loading() ? 'Analizando…' : 'Analizar' }}
       </button>
     </div>
+    <label class="force-refresh">
+      <input
+        type="checkbox"
+        [ngModel]="forceRefresh()"
+        (ngModelChange)="forceRefresh.set($event)"
+      />
+      Forzar nuevo análisis (ignora caché, vuelve a consultar la IA)
+    </label>
     @if (error()) {
       <p class="error">{{ error() }}</p>
     }
   </section>
 
   @if (result(); as r) {
-    <!-- Sección 2: Resultado del análisis -->
     <section class="card">
       <h2>2. Resultado del análisis</h2>
+      @if (r.cached) {
+        <span class="badge">⚡ Desde caché (sin nueva llamada a la IA)</span>
+      } @else {
+        <span class="badge badge-fresh">🤖 Análisis generado con IA</span>
+      }
       <p class="summary">{{ r.summary }}</p>
       <div class="grid">
         <div class="stat"><span>Proyecto</span><strong>{{ r.projectName }}</strong></div>
@@ -38,7 +49,6 @@
       </div>
     </section>
 
-    <!-- Sección 3: Hallazgos -->
     <section class="card">
       <h2>3. Hallazgos</h2>
       <div class="findings">
@@ -61,6 +71,35 @@
           </ul>
         </div>
       </div>
+      @if (r.evidence.length) {
+        <div class="evidence">
+          <h3>🔍 Evidencias encontradas</h3>
+          <ul>
+            @for (e of r.evidence; track e) { <li><code>{{ e }}</code></li> }
+          </ul>
+        </div>
+      }
     </section>
   }
+
+  <section class="card">
+    <h2>📜 Histórico de análisis</h2>
+    @if (historyLoading()) {
+      <p class="muted">Cargando histórico…</p>
+    } @else if (history().length === 0) {
+      <p class="muted">Aún no hay análisis guardados.</p>
+    } @else {
+      <ul class="history-list">
+        @for (item of history(); track item.id) {
+          <li>
+            <button type="button" class="history-item" (click)="viewFromHistory(item)">
+              <strong>{{ item.projectName }}</strong>
+              <span>{{ item.framework }} · {{ item.architecture }}</span>
+              <span class="history-url">{{ item.repoUrl }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
 </main>
