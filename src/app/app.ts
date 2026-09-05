@@ -12,7 +12,7 @@ import { Analysis } from './models/analysis.model';
 export class App implements OnInit {
   private readonly analysisService = inject(AnalysisService);
 
-  protected readonly repoUrl = signal('https://github.com/spring-projects/spring-petclinic');
+  protected readonly repoUrl = signal('');
   protected readonly forceRefresh = signal(false);
   protected readonly result = signal<Analysis | null>(null);
   protected readonly loading = signal(false);
