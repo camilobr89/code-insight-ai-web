@@ -176,7 +176,7 @@ describe('App', () => {
     };
 
     fixture.detectChanges();
-    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 })]);
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 'a1' })]);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -223,7 +223,7 @@ describe('App', () => {
     const component = fixture.componentInstance as unknown as { history: () => Analysis[] };
 
     fixture.detectChanges();
-    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 })]);
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 'a1' })]);
     fixture.detectChanges();
 
     const deleteBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
@@ -232,7 +232,7 @@ describe('App', () => {
     expect(deleteBtn).toBeTruthy();
     deleteBtn!.click();
 
-    httpMock.expectOne({ url: `${HISTORY_URL}/1`, method: 'DELETE' }).flush(null);
+    httpMock.expectOne({ url: `${HISTORY_URL}/a1`, method: 'DELETE' }).flush(null);
 
     expect(component.history()).toEqual([]);
   });
@@ -242,7 +242,7 @@ describe('App', () => {
     const component = fixture.componentInstance as unknown as { history: () => Analysis[] };
 
     fixture.detectChanges();
-    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 }), mockAnalysis({ id: 2 })]);
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 'a1' }), mockAnalysis({ id: 'a2' })]);
     fixture.detectChanges();
 
     const clearBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(

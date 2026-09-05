@@ -54,7 +54,7 @@ export class App implements OnInit {
     this.error.set(null);
   }
 
-  deleteItem(id: number | undefined): void {
+  deleteItem(id: string | undefined): void {
     if (id === undefined) {
       return;
     }
