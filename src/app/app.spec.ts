@@ -24,6 +24,7 @@ function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
     risks: ['Sin pruebas'],
     evidence: ['src/main/java/DemoController.java presente'],
     cached: false,
+    source: 'AI',
     ...overrides,
   };
 }
@@ -182,5 +183,54 @@ describe('App', () => {
     httpMock.expectOne(HISTORY_URL).flush('boom', { status: 500, statusText: 'Server Error' });
 
     expect(component.historyLoading()).toBe(false);
+  });
+
+  it('should render the heuristic badge when the analysis is not AI-generated', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as { analyze: () => void };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([]);
+
+    component.analyze();
+    httpMock.expectOne(HISTORY_URL).flush(mockAnalysis({ cached: false, source: 'HEURISTIC' }));
+    httpMock.expectOne(HISTORY_URL).flush([]);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Análisis heurístico');
+  });
+
+  it('should delete a history item', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as { history: () => Analysis[] };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 })]);
+    fixture.detectChanges();
+
+    const deleteBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.delete-btn');
+    expect(deleteBtn).toBeTruthy();
+    deleteBtn!.click();
+
+    httpMock.expectOne({ url: `${HISTORY_URL}/1`, method: 'DELETE' }).flush(null);
+
+    expect(component.history()).toEqual([]);
+  });
+
+  it('should clear the whole history', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as { history: () => Analysis[] };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 }), mockAnalysis({ id: 2 })]);
+    fixture.detectChanges();
+
+    const clearBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.clear-btn');
+    expect(clearBtn).toBeTruthy();
+    clearBtn!.click();
+
+    httpMock.expectOne({ url: HISTORY_URL, method: 'DELETE' }).flush(null);
+
+    expect(component.history()).toEqual([]);
   });
 });

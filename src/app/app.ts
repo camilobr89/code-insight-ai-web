@@ -54,6 +54,29 @@ export class App implements OnInit {
     this.error.set(null);
   }
 
+  deleteItem(id: number | undefined): void {
+    if (id === undefined) {
+      return;
+    }
+    this.analysisService.delete(id).subscribe({
+      next: () => {
+        this.history.update((items) => items.filter((item) => item.id !== id));
+        if (this.result()?.id === id) {
+          this.result.set(null);
+        }
+      },
+    });
+  }
+
+  clearHistory(): void {
+    this.analysisService.deleteAll().subscribe({
+      next: () => {
+        this.history.set([]);
+        this.result.set(null);
+      },
+    });
+  }
+
   private loadHistory(): void {
     this.historyLoading.set(true);
     this.analysisService.history().subscribe({

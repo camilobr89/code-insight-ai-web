@@ -20,4 +20,12 @@ export class AnalysisService {
   history(): Observable<Analysis[]> {
     return this.http.get<Analysis[]>(this.baseUrl);
   }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  deleteAll(): Observable<void> {
+    return this.http.delete<void>(this.baseUrl);
+  }
 }

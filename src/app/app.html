@@ -36,8 +36,10 @@
       <h2>2. Resultado del análisis</h2>
       @if (r.cached) {
         <span class="badge">⚡ Desde caché (sin nueva llamada a la IA)</span>
-      } @else {
+      } @else if (r.source === 'AI') {
         <span class="badge badge-fresh">🤖 Análisis generado con IA</span>
+      } @else {
+        <span class="badge badge-heuristic">🧭 Análisis heurístico (sin acceso a GitHub/IA)</span>
       }
       <p class="summary">{{ r.summary }}</p>
       <div class="grid">
@@ -83,7 +85,12 @@
   }
 
   <section class="card">
-    <h2>📜 Histórico de análisis</h2>
+    <div class="history-header">
+      <h2>📜 Histórico de análisis</h2>
+      @if (history().length > 0) {
+        <button type="button" class="clear-btn" (click)="clearHistory()">Vaciar historial</button>
+      }
+    </div>
     @if (historyLoading()) {
       <p class="muted">Cargando histórico…</p>
     } @else if (history().length === 0) {
@@ -91,12 +98,18 @@
     } @else {
       <ul class="history-list">
         @for (item of history(); track item.id) {
-          <li>
+          <li class="history-row">
             <button type="button" class="history-item" (click)="viewFromHistory(item)">
               <strong>{{ item.projectName }}</strong>
               <span>{{ item.framework }} · {{ item.architecture }}</span>
               <span class="history-url">{{ item.repoUrl }}</span>
             </button>
+            <button
+              type="button"
+              class="delete-btn"
+              title="Eliminar"
+              (click)="deleteItem(item.id)"
+            >🗑️</button>
           </li>
         }
       </ul>
