@@ -1,118 +1,275 @@
-<main class="page">
-  <header class="hero">
-    <h1>🔎 Code Insight AI</h1>
-    <p>Ingeniería inversa automatizada de repositorios</p>
-  </header>
-
-  <section class="card">
-    <h2>1. Cargar repositorio</h2>
-    <div class="loader">
-      <input
-        type="url"
-        name="repoUrl"
-        placeholder="https://github.com/usuario/proyecto"
-        [ngModel]="repoUrl()"
-        (ngModelChange)="repoUrl.set($event)"
-      />
-      <button type="button" (click)="analyze()" [disabled]="loading()">
-        {{ loading() ? 'Analizando…' : 'Analizar' }}
-      </button>
-    </div>
-    <label class="force-refresh">
-      <input
-        type="checkbox"
-        [ngModel]="forceRefresh()"
-        (ngModelChange)="forceRefresh.set($event)"
-      />
-      Forzar nuevo análisis (ignora caché, vuelve a consultar la IA)
-    </label>
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
-  </section>
-
-  @if (result(); as r) {
-    <section class="card">
-      <h2>2. Resultado del análisis</h2>
-      @if (r.cached) {
-        <span class="badge">⚡ Desde caché (sin nueva llamada a la IA)</span>
-      } @else if (r.source === 'AI') {
-        <span class="badge badge-fresh">🤖 Análisis generado con IA</span>
-      } @else {
-        <span class="badge badge-heuristic">🧭 Análisis heurístico (sin acceso a GitHub/IA)</span>
-      }
-      <p class="summary">{{ r.summary }}</p>
-      <div class="grid">
-        <div class="stat"><span>Proyecto</span><strong>{{ r.projectName }}</strong></div>
-        <div class="stat"><span>Lenguaje</span><strong>{{ r.mainLanguage }}</strong></div>
-        <div class="stat"><span>Framework</span><strong>{{ r.framework }}</strong></div>
-        <div class="stat"><span>Arquitectura</span><strong>{{ r.architecture }}</strong></div>
-        <div class="stat"><span>Archivos (aprox.)</span><strong>{{ r.fileCount }}</strong></div>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>3. Hallazgos</h2>
-      <div class="findings">
-        <div>
-          <h3>🧩 Componentes</h3>
-          <ul>
-            @for (c of r.components; track c) { <li>{{ c }}</li> }
-          </ul>
+<header class="topbar">
+  <div class="brand">
+    <img class="brand-mark" src="favicon.svg" alt="" width="35" height="35" /><span
+      >Code Insight <b>AI</b></span
+    >
+  </div>
+  <span class="topbar-caption">Análisis de repositorios</span>
+</header>
+<main class="page" id="workspace">
+  <div class="workspace">
+    <div class="analysis-column">
+      <section class="card repository-card" aria-labelledby="repository-title">
+        <div class="section-heading">
+          <span class="section-icon" aria-hidden="true"
+            ><svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="8" y="3" width="8" height="6" rx="2" />
+              <path d="M12 9v4M5 16v-3h14v3" />
+              <rect x="2" y="16" width="6" height="5" rx="1.5" />
+              <rect x="16" y="16" width="6" height="5" rx="1.5" /></svg
+          ></span>
+          <div>
+            <h1 id="repository-title">Analizar repositorio</h1>
+            <p>Consulta su estructura, tecnologías y arquitectura.</p>
+          </div>
+          <span class="step">01 / ENTRADA</span>
         </div>
-        <div>
-          <h3>💡 Recomendaciones</h3>
-          <ul>
-            @for (rec of r.recommendations; track rec) { <li>{{ rec }}</li> }
-          </ul>
-        </div>
-        <div>
-          <h3>⚠️ Riesgos</h3>
-          <ul>
-            @for (risk of r.risks; track risk) { <li>{{ risk }}</li> }
-          </ul>
-        </div>
-      </div>
-      @if (r.evidence.length) {
-        <div class="evidence">
-          <h3>🔍 Evidencias encontradas</h3>
-          <ul>
-            @for (e of r.evidence; track e) { <li><code>{{ e }}</code></li> }
-          </ul>
-        </div>
-      }
-    </section>
-  }
-
-  <section class="card">
-    <div class="history-header">
-      <h2>📜 Histórico de análisis</h2>
-      @if (history().length > 0) {
-        <button type="button" class="clear-btn" (click)="clearHistory()">Vaciar historial</button>
-      }
-    </div>
-    @if (historyLoading()) {
-      <p class="muted">Cargando histórico…</p>
-    } @else if (history().length === 0) {
-      <p class="muted">Aún no hay análisis guardados.</p>
-    } @else {
-      <ul class="history-list">
-        @for (item of history(); track item.id) {
-          <li class="history-row">
-            <button type="button" class="history-item" (click)="viewFromHistory(item)">
-              <strong>{{ item.projectName }}</strong>
-              <span>{{ item.framework }} · {{ item.architecture }}</span>
-              <span class="history-url">{{ item.repoUrl }}</span>
+        <form (ngSubmit)="analyze()">
+          <label class="input-label" for="repo-url">URL del repositorio público</label>
+          <div class="loader">
+            <input
+              id="repo-url"
+              type="url"
+              autocomplete="off"
+              spellcheck="false"
+              name="repoUrl"
+              placeholder="https://github.com/usuario/proyecto"
+              required
+              [ngModel]="repoUrl()"
+              (ngModelChange)="repoUrl.set($event)"
+              [disabled]="loading()"
+              aria-describedby="repo-hint"
+            />
+            <button class="primary-button" type="submit" [disabled]="loading()">
+              @if (loading()) {
+                <span class="spinner" aria-hidden="true"></span>
+              }
+              {{ loading() ? 'Analizando…' : 'Analizar repositorio' }}
+              @if (!loading()) {
+                <span aria-hidden="true">→</span>
+              }
             </button>
-            <button
-              type="button"
-              class="delete-btn"
-              title="Eliminar"
-              (click)="deleteItem(item.id)"
-            >🗑️</button>
-          </li>
+          </div>
+          <p class="input-hint" id="repo-hint">
+            Utiliza un repositorio público o un proyecto personal de demostración.
+          </p>
+          <label class="force-refresh"
+            ><input
+              type="checkbox"
+              name="forceRefresh"
+              [ngModel]="forceRefresh()"
+              (ngModelChange)="forceRefresh.set($event)"
+              [disabled]="loading()"
+            /><span
+              >Generar un análisis nuevo <small>Omitir el resultado guardado</small></span
+            ></label
+          >
+        </form>
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
         }
-      </ul>
-    }
-  </section>
+      </section>
+      @if (loading()) {
+        <section class="card loading-state" role="status" aria-live="polite">
+          <span class="loading-orbit"><span class="spinner"></span></span>
+          <div class="eyebrow">ANÁLISIS EN CURSO</div>
+          <h2>Analizando el repositorio</h2>
+          <p>
+            Estamos consultando el repositorio para preparar sus resultados.<br />Esto puede tardar
+            unos momentos.
+          </p>
+          <div class="loading-line"></div>
+        </section>
+      } @else if (result(); as r) {
+        <section class="card result-card" aria-labelledby="result-title">
+          <div class="result-heading">
+            <div>
+              <div class="eyebrow">02 / VISIÓN GENERAL</div>
+              <h2 id="result-title">{{ r.projectName }}</h2>
+            </div>
+            @if (r.cached) {
+              <span class="badge">Desde caché</span>
+            } @else if (r.source === 'AI') {
+              <span class="badge badge-fresh">Análisis generado con IA</span>
+            } @else {
+              <span class="badge badge-heuristic">Análisis heurístico</span>
+            }
+          </div>
+          @if (r.source !== 'AI') {
+            <p class="input-hint">
+              Resultado heurístico: la interpretación puede ser limitada sin acceso a GitHub o a la
+              IA.
+            </p>
+          }
+          <p class="summary">{{ r.summary }}</p>
+          <div class="grid">
+            <div class="stat">
+              <span>Lenguaje principal</span><strong>{{ r.mainLanguage }}</strong>
+            </div>
+            <div class="stat">
+              <span>Framework</span><strong>{{ r.framework }}</strong>
+            </div>
+            <div class="stat">
+              <span>Arquitectura inferida</span><strong>{{ r.architecture }}</strong>
+            </div>
+            <div class="stat">
+              <span>Archivos aprox.</span><strong>{{ r.fileCount }}</strong>
+            </div>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="findings-title">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow">03 / HALLAZGOS</div>
+              <h2 id="findings-title">Componentes y oportunidades de mejora</h2>
+            </div>
+          </div>
+          <div class="findings">
+            <div>
+              <h3>
+                <span class="finding-dot"></span>Componentes
+                <small>{{ r.components.length }}</small>
+              </h3>
+              <ul>
+                @for (c of r.components; track $index) {
+                  <li>{{ c }}</li>
+                } @empty {
+                  <li class="muted">Sin componentes identificados.</li>
+                }
+              </ul>
+            </div>
+            <div>
+              <h3>
+                <span class="finding-dot recommendation"></span>Recomendaciones
+                <small>{{ r.recommendations.length }}</small>
+              </h3>
+              <ul>
+                @for (rec of r.recommendations; track $index) {
+                  <li>{{ rec }}</li>
+                } @empty {
+                  <li class="muted">Sin recomendaciones reportadas.</li>
+                }
+              </ul>
+            </div>
+            <div>
+              <h3>
+                <span class="finding-dot risk"></span>Riesgos <small>{{ r.risks.length }}</small>
+              </h3>
+              <ul>
+                @for (risk of r.risks; track $index) {
+                  <li>{{ risk }}</li>
+                } @empty {
+                  <li class="muted">Sin riesgos reportados en este análisis.</li>
+                }
+              </ul>
+            </div>
+          </div>
+          @if (r.evidence.length) {
+            <details class="evidence" open>
+              <summary>
+                Evidencias encontradas <span>{{ r.evidence.length }}</span>
+              </summary>
+              <ul>
+                @for (e of r.evidence; track $index) {
+                  <li>
+                    <code>{{ e }}</code>
+                  </li>
+                }
+              </ul>
+            </details>
+          }
+        </section>
+      } @else {
+        <section class="card empty-state">
+          <div class="code-map" aria-hidden="true">
+            <span class="map-node">&#123; &#125;</span>
+            <div class="map-stem"></div>
+            <div class="map-branches"><span>⌘</span><span>&lt;/&gt;</span><span>≡</span></div>
+          </div>
+          <div class="eyebrow">RESULTADOS</div>
+          <h2>Aún no hay un análisis seleccionado</h2>
+          <p>
+            Ingresa la URL de un repositorio o selecciona<br class="desktop-break" />
+            un análisis del historial para ver sus resultados.
+          </p>
+          <div class="preview-features">
+            <span>Resumen funcional</span><span>Arquitectura</span><span>Hallazgos</span>
+          </div>
+        </section>
+      }
+      <div class="workspace-note">
+        <span aria-hidden="true">◇</span> La IA ofrece una primera lectura. Valida los hallazgos con
+        el contexto de tu proyecto.
+      </div>
+    </div>
+    <aside class="card history-card" aria-labelledby="history-title">
+      <div class="history-header">
+        <h2 id="history-title">Análisis recientes</h2>
+        <span class="count">{{ history().length }}</span>
+      </div>
+      <p class="history-description">Consulta tus resultados anteriores.</p>
+      @if (historyLoading()) {
+        <p class="muted" role="status">Cargando histórico…</p>
+      } @else if (history().length === 0) {
+        <div class="history-empty">
+          <span aria-hidden="true">↺</span>
+          <h3>Todavía no hay análisis</h3>
+          <p>Los repositorios que analices<br />aparecerán en este espacio.</p>
+        </div>
+      } @else {
+        <ul class="history-list">
+          @for (item of history(); track item.id) {
+            <li
+              class="history-row"
+              [class.selected]="result() !== null && result()?.id === item.id"
+            >
+              <button
+                type="button"
+                class="history-item"
+                (click)="viewFromHistory(item)"
+                [disabled]="loading()"
+              >
+                <span class="history-project"
+                  ><span aria-hidden="true">⌘</span><strong>{{ item.projectName }}</strong></span
+                ><span>{{ item.framework }} · {{ item.architecture }}</span
+                ><span class="history-url" [title]="item.repoUrl">{{ item.repoUrl }}</span></button
+              ><button
+                type="button"
+                class="delete-btn"
+                [attr.aria-label]="'Eliminar análisis de ' + item.projectName"
+                title="Eliminar análisis"
+                (click)="deleteItem(item.id)"
+                [disabled]="loading()"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  aria-hidden="true"
+                >
+                  <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7" />
+                </svg>
+              </button>
+            </li>
+          }
+        </ul>
+        <button type="button" class="clear-btn" (click)="clearHistory()" [disabled]="loading()">
+          Vaciar historial
+        </button>
+      }
+      <div class="history-footer">Los análisis se guardan automáticamente.</div>
+    </aside>
+  </div>
 </main>

@@ -1,9 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { App } from './app';
 import { environment } from '../environments/environment';
 import { Analysis } from './models/analysis.model';
@@ -59,8 +56,11 @@ describe('App', () => {
     httpMock.expectOne(HISTORY_URL).flush([]);
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Code Insight AI');
+    expect(compiled.querySelector('.brand')?.textContent).toContain('Code Insight AI');
     expect(compiled.querySelector('button')?.textContent).toContain('Analizar');
+    const input = compiled.querySelector<HTMLInputElement>('#repo-url');
+    expect(input?.value).toBe('');
+    expect(input?.placeholder).toBe('https://github.com/usuario/proyecto');
   });
 
   it('should call the API and expose the result on analyze()', () => {
@@ -70,6 +70,9 @@ describe('App', () => {
       result: () => Analysis | null;
     };
 
+    (
+      fixture.componentInstance as unknown as { repoUrl: { set: (value: string) => void } }
+    ).repoUrl.set(mockAnalysis().repoUrl);
     component.analyze();
 
     const req = httpMock.expectOne(HISTORY_URL);
@@ -90,6 +93,9 @@ describe('App', () => {
     fixture.detectChanges();
     httpMock.expectOne(HISTORY_URL).flush([]);
 
+    (
+      fixture.componentInstance as unknown as { repoUrl: { set: (value: string) => void } }
+    ).repoUrl.set(mockAnalysis().repoUrl);
     component.analyze();
     httpMock.expectOne(HISTORY_URL).flush(mockAnalysis({ cached: true }));
     httpMock.expectOne(HISTORY_URL).flush([]);
@@ -111,13 +117,17 @@ describe('App', () => {
     fixture.detectChanges();
     httpMock.expectOne(HISTORY_URL).flush([]);
 
+    (
+      fixture.componentInstance as unknown as { repoUrl: { set: (value: string) => void } }
+    ).repoUrl.set(mockAnalysis().repoUrl);
     component.analyze();
     httpMock.expectOne(HISTORY_URL).flush('boom', { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 
     expect(component.error()).toContain('No se pudo analizar');
-    expect((fixture.nativeElement as HTMLElement).querySelector('.error')?.textContent)
-        .toContain('No se pudo analizar');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.error')?.textContent).toContain(
+      'No se pudo analizar',
+    );
   });
 
   it('should show a validation error for an empty repo URL without calling the API', () => {
@@ -145,12 +155,17 @@ describe('App', () => {
     fixture.detectChanges();
     httpMock.expectOne(HISTORY_URL).flush([]);
 
+    (
+      fixture.componentInstance as unknown as { repoUrl: { set: (value: string) => void } }
+    ).repoUrl.set(mockAnalysis().repoUrl);
     component.analyze();
     httpMock.expectOne(HISTORY_URL).flush(mockAnalysis({ cached: false }));
     httpMock.expectOne(HISTORY_URL).flush([]);
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Análisis generado con IA');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Análisis generado con IA',
+    );
   });
 
   it('should render history items and load one on click', () => {
@@ -192,6 +207,9 @@ describe('App', () => {
     fixture.detectChanges();
     httpMock.expectOne(HISTORY_URL).flush([]);
 
+    (
+      fixture.componentInstance as unknown as { repoUrl: { set: (value: string) => void } }
+    ).repoUrl.set(mockAnalysis().repoUrl);
     component.analyze();
     httpMock.expectOne(HISTORY_URL).flush(mockAnalysis({ cached: false, source: 'HEURISTIC' }));
     httpMock.expectOne(HISTORY_URL).flush([]);
@@ -208,7 +226,9 @@ describe('App', () => {
     httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 })]);
     fixture.detectChanges();
 
-    const deleteBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.delete-btn');
+    const deleteBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      '.delete-btn',
+    );
     expect(deleteBtn).toBeTruthy();
     deleteBtn!.click();
 
@@ -225,7 +245,9 @@ describe('App', () => {
     httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 }), mockAnalysis({ id: 2 })]);
     fixture.detectChanges();
 
-    const clearBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.clear-btn');
+    const clearBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      '.clear-btn',
+    );
     expect(clearBtn).toBeTruthy();
     clearBtn!.click();
 
