@@ -15,7 +15,7 @@ export class AppConfigService {
       const res = await fetch('config.json', { cache: 'no-store' });
       if (res.ok) {
         const cfg = (await res.json()) as { apiUrl?: string };
-        if (cfg?.apiUrl) {
+        if (cfg && typeof cfg.apiUrl === 'string') {
           this._apiUrl = cfg.apiUrl;
         }
       }
