@@ -13,6 +13,7 @@ export interface Analysis {
   evidence: string[];
   createdAt?: string;
   cached: boolean;
+  source: 'AI' | 'HEURISTIC';
 }
 
 export interface AnalyzeRequest {
