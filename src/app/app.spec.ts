@@ -107,11 +107,80 @@ describe('App', () => {
       error: () => string | null;
     };
 
-    component.analyze();
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([]);
 
-    const req = httpMock.expectOne(HISTORY_URL);
-    req.flush('boom', { status: 500, statusText: 'Server Error' });
+    component.analyze();
+    httpMock.expectOne(HISTORY_URL).flush('boom', { status: 500, statusText: 'Server Error' });
+    fixture.detectChanges();
 
     expect(component.error()).toContain('No se pudo analizar');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.error')?.textContent)
+        .toContain('No se pudo analizar');
+  });
+
+  it('should show a validation error for an empty repo URL without calling the API', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as {
+      repoUrl: { set: (v: string) => void };
+      analyze: () => void;
+      error: () => string | null;
+    };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([]);
+
+    component.repoUrl.set('   ');
+    component.analyze();
+
+    expect(component.error()).toContain('Ingresa una URL');
+    httpMock.expectNone(HISTORY_URL);
+  });
+
+  it('should render the non-cached badge when the analysis is fresh', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as { analyze: () => void };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([]);
+
+    component.analyze();
+    httpMock.expectOne(HISTORY_URL).flush(mockAnalysis({ cached: false }));
+    httpMock.expectOne(HISTORY_URL).flush([]);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Análisis generado con IA');
+  });
+
+  it('should render history items and load one on click', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as {
+      result: () => Analysis | null;
+      repoUrl: () => string;
+    };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 1 })]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const item = compiled.querySelector<HTMLButtonElement>('.history-item');
+    expect(item).toBeTruthy();
+    expect(compiled.textContent).toContain('spring-petclinic');
+
+    item!.click();
+
+    expect(component.result()?.projectName).toBe('spring-petclinic');
+    expect(component.repoUrl()).toBe('https://github.com/spring-projects/spring-petclinic');
+  });
+
+  it('should stop the history loading indicator when the history request fails', () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as { historyLoading: () => boolean };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush('boom', { status: 500, statusText: 'Server Error' });
+
+    expect(component.historyLoading()).toBe(false);
   });
 });
