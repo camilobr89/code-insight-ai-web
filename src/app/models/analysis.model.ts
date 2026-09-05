@@ -1,5 +1,5 @@
 export interface Analysis {
-  id?: number;
+  id?: string;
   repoUrl: string;
   projectName: string;
   mainLanguage: string;
