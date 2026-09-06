@@ -98,6 +98,30 @@
   margin-top: 25px;
   padding-top: 19px;
 }
+.diagram-card .section-heading {
+  align-items: flex-start;
+}
+.expand-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #dce4de;
+  background: #fff;
+  color: #3d5951;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 7px;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.expand-btn:hover {
+  border-color: #a5c5b8;
+  color: #16735d;
+}
 .diagram-viewport {
   background: #f6f8f6;
   border: 1px solid #e9eeea;
@@ -106,10 +130,81 @@
   overflow-x: auto;
 }
 .diagram-viewport ::ng-deep svg {
+  /* Sin max-width: el SVG conserva su tamaño real (ver useMaxWidth:false en
+     DiagramRendererService) y el contenedor se encarga del scroll horizontal
+     cuando el diagrama es más ancho que la tarjeta, en vez de encogerlo hasta
+     volverlo ilegible. */
   display: block;
   margin: 0 auto;
-  max-width: 100%;
   height: auto;
+}
+.diagram-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 34, 30, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  z-index: 100;
+}
+.diagram-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow:
+    0 20px 60px #164c3d22,
+    0 4px 20px #164c3d14;
+  max-width: min(1240px, 100%);
+  max-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.diagram-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5ebe6;
+}
+.diagram-modal-header h2 {
+  margin: 0;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.modal-close-btn {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: #829187;
+  padding: 8px;
+  border-radius: 7px;
+}
+.modal-close-btn:hover {
+  color: #ab4938;
+}
+.diagram-viewport-expanded {
+  margin: 24px;
+  flex: 1;
+  overflow: auto;
+}
+.diagram-viewport-expanded ::ng-deep svg {
+  max-width: none;
+  height: auto;
+}
+@media (max-width: 740px) {
+  .diagram-modal-backdrop {
+    padding: 0;
+  }
+  .diagram-modal {
+    max-height: 100%;
+    border-radius: 0;
+  }
+  .diagram-viewport-expanded {
+    margin: 16px;
+  }
 }
 .evidence summary {
   font-size: 13px;

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SafeHtml } from '@angular/platform-browser';
 import { AnalysisService } from './services/analysis.service';
@@ -21,9 +21,17 @@ export class App implements OnInit {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly diagramSvg = signal<SafeHtml | null>(null);
+  protected readonly diagramExpanded = signal(false);
 
   protected readonly history = signal<Analysis[]>([]);
   protected readonly historyLoading = signal(false);
+
+  @HostListener('document:keydown.escape')
+  onEscapePressed(): void {
+    if (this.diagramExpanded()) {
+      this.diagramExpanded.set(false);
+    }
+  }
 
   ngOnInit(): void {
     this.loadHistory();
@@ -70,6 +78,7 @@ export class App implements OnInit {
         if (this.result()?.id === id) {
           this.result.set(null);
           this.diagramSvg.set(null);
+          this.diagramExpanded.set(false);
         }
       },
     });
@@ -81,12 +90,14 @@ export class App implements OnInit {
         this.history.set([]);
         this.result.set(null);
         this.diagramSvg.set(null);
+        this.diagramExpanded.set(false);
       },
     });
   }
 
   private renderDiagram(definition: string | undefined): void {
     this.diagramSvg.set(null);
+    this.diagramExpanded.set(false);
     if (!definition) {
       return;
     }

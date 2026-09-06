@@ -39,7 +39,12 @@ export class DiagramRendererService {
             fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
             fontSize: '12px',
           },
-          flowchart: { curve: 'basis' },
+          // useMaxWidth:false es clave: por defecto mermaid pone width="100%" en el SVG,
+          // lo que lo encoge para caber en el contenedor — con muchos componentes el
+          // texto se vuelve ilegible en vez de desbordar con scroll (ver conversación
+          // con el usuario). Con esto el SVG conserva su tamaño real y el contenedor
+          // (`.diagram-viewport`, con overflow-x:auto) se encarga del scroll horizontal.
+          flowchart: { curve: 'basis', useMaxWidth: false },
         });
         mermaidInitialized = true;
       }
