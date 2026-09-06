@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { DiagramRendererService } from './diagram-renderer.service';
+import { DiagramRendererService } from '../../../src/app/services/diagram-renderer.service';
 
 const { initializeMock, renderMock } = vi.hoisted(() => ({
   initializeMock: vi.fn(),
@@ -38,11 +38,15 @@ describe('DiagramRendererService', () => {
     expect(result).not.toBeNull();
   });
 
-  it('returns null when mermaid fails to render', async () => {
-    renderMock.mockRejectedValue(new Error('invalid diagram'));
+  it('returns null and logs a warning when mermaid fails to render', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const error = new Error('invalid diagram');
+    renderMock.mockRejectedValue(error);
 
     const result = await service.render('not a real diagram');
 
     expect(result).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('diagrama'), error);
+    warnSpy.mockRestore();
   });
 });

@@ -37,8 +37,7 @@ export class DiagramRendererService {
             fontSize: '12px',
           },
           // useMaxWidth:false evita que mermaid encoja el SVG para caber en el
-          // contenedor; `.diagram-viewport` hace scroll cuando no cabe.
-          // wrappingWidth alto evita que las etiquetas se partan en varias líneas.
+          // contenedor; wrappingWidth alto evita que las etiquetas se partan en líneas.
           flowchart: { curve: 'basis', useMaxWidth: false, wrappingWidth: 1000 },
         });
         mermaidInitialized = true;
@@ -49,7 +48,8 @@ export class DiagramRendererService {
       // explícitamente con DOMPurify además del saneamiento interno de mermaid.
       const safeSvg = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
       return this.sanitizer.bypassSecurityTrustHtml(safeSvg); // NOSONAR typescript:S6268 — saneado arriba con DOMPurify.
-    } catch {
+    } catch (error) {
+      console.warn('No se pudo renderizar el diagrama Mermaid.', error);
       return null;
     }
   }

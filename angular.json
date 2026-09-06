@@ -76,7 +76,8 @@
           "options": {
             "runner": "vitest",
             "coverage": true,
-            "coverageReporters": ["text", "lcov"]
+            "coverageReporters": ["text", "lcov"],
+            "include": ["../test/**/*.spec.ts"]
           }
         }
       }

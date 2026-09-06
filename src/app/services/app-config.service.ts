@@ -23,8 +23,8 @@ export class AppConfigService {
           this._apiUrl = cfg.apiUrl;
         }
       }
-    } catch {
-      // ignore, keep environment default
+    } catch (error) {
+      console.warn('No se pudo cargar config.json, se usa la URL de API por defecto.', error);
     }
   }
 }

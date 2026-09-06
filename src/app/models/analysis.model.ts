@@ -11,7 +11,6 @@ export interface Analysis {
   recommendations: string[];
   risks: string[];
   evidence: string[];
-  /** Diagrama de arquitectura inferido, en sintaxis Mermaid (flowchart). */
   diagram?: string;
   createdAt?: string;
   cached: boolean;

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { AppConfigService } from './app-config.service';
-import { environment } from '../../environments/environment';
+import { AppConfigService } from '../../../src/app/services/app-config.service';
+import { environment } from '../../../src/environments/environment';
 
 describe('AppConfigService', () => {
   let service: AppConfigService;
@@ -63,11 +63,15 @@ describe('AppConfigService', () => {
     expect(service.apiUrl).toBe(environment.apiUrl);
   });
 
-  it('keeps the environment default when fetch throws', async () => {
-    fetchSpy.mockRejectedValue(new Error('network error'));
+  it('keeps the environment default and logs a warning when fetch throws', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const error = new Error('network error');
+    fetchSpy.mockRejectedValue(error);
 
     await service.load();
 
     expect(service.apiUrl).toBe(environment.apiUrl);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('config.json'), error);
+    warnSpy.mockRestore();
   });
 });
