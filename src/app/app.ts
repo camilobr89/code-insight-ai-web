@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { SafeHtml } from '@angular/platform-browser';
 import { AnalysisService } from './services/analysis.service';
+import { DiagramRendererService } from './services/diagram-renderer.service';
 import { Analysis } from './models/analysis.model';
 
 @Component({
@@ -11,12 +13,14 @@ import { Analysis } from './models/analysis.model';
 })
 export class App implements OnInit {
   private readonly analysisService = inject(AnalysisService);
+  private readonly diagramRenderer = inject(DiagramRendererService);
 
   protected readonly repoUrl = signal('');
   protected readonly forceRefresh = signal(false);
   protected readonly result = signal<Analysis | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly diagramSvg = signal<SafeHtml | null>(null);
 
   protected readonly history = signal<Analysis[]>([]);
   protected readonly historyLoading = signal(false);
@@ -39,6 +43,7 @@ export class App implements OnInit {
       next: (analysis) => {
         this.result.set(analysis);
         this.loading.set(false);
+        this.renderDiagram(analysis.diagram);
         this.loadHistory();
       },
       error: () => {
@@ -52,6 +57,7 @@ export class App implements OnInit {
     this.result.set(analysis);
     this.repoUrl.set(analysis.repoUrl);
     this.error.set(null);
+    this.renderDiagram(analysis.diagram);
   }
 
   deleteItem(id: string | undefined): void {
@@ -63,6 +69,7 @@ export class App implements OnInit {
         this.history.update((items) => items.filter((item) => item.id !== id));
         if (this.result()?.id === id) {
           this.result.set(null);
+          this.diagramSvg.set(null);
         }
       },
     });
@@ -73,8 +80,17 @@ export class App implements OnInit {
       next: () => {
         this.history.set([]);
         this.result.set(null);
+        this.diagramSvg.set(null);
       },
     });
+  }
+
+  private renderDiagram(definition: string | undefined): void {
+    this.diagramSvg.set(null);
+    if (!definition) {
+      return;
+    }
+    this.diagramRenderer.render(definition).then((svg) => this.diagramSvg.set(svg));
   }
 
   private loadHistory(): void {

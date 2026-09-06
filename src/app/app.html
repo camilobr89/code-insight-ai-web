@@ -188,6 +188,20 @@
             </details>
           }
         </section>
+        <section class="card diagram-card" aria-labelledby="diagram-title">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow">04 / DIAGRAMA</div>
+              <h2 id="diagram-title">Arquitectura inferida — {{ r.architecture }}</h2>
+              <p>Generado a partir del patrón detectado y los componentes identificados.</p>
+            </div>
+          </div>
+          @if (diagramSvg(); as svg) {
+            <div class="diagram-viewport" [innerHTML]="svg"></div>
+          } @else {
+            <p class="muted">Generando diagrama…</p>
+          }
+        </section>
       } @else {
         <section class="card empty-state">
           <div class="code-map" aria-hidden="true">
