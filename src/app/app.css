@@ -98,6 +98,19 @@
   margin-top: 25px;
   padding-top: 19px;
 }
+.diagram-viewport {
+  background: #f6f8f6;
+  border: 1px solid #e9eeea;
+  border-radius: 10px;
+  padding: 18px;
+  overflow-x: auto;
+}
+.diagram-viewport ::ng-deep svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
 .evidence summary {
   font-size: 13px;
   font-weight: 600;

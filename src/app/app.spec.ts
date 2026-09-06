@@ -1,9 +1,12 @@
+import { inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { App } from './app';
 import { environment } from '../environments/environment';
 import { Analysis } from './models/analysis.model';
+import { DiagramRendererService } from './services/diagram-renderer.service';
 
 const HISTORY_URL = `${environment.apiUrl}/api/analyses`;
 
@@ -20,10 +23,23 @@ function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
     recommendations: ['Agregar documentación'],
     risks: ['Sin pruebas'],
     evidence: ['src/main/java/DemoController.java presente'],
+    diagram: 'flowchart TD\n  Cliente --> Controllers --> BD[(Base de datos)]',
     cached: false,
     source: 'AI',
     ...overrides,
   };
+}
+
+/** Evita ejecutar el renderizado real de Mermaid (necesita APIs de DOM que jsdom no ofrece). */
+class DiagramRendererStub {
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly stubSvg = this.sanitizer.bypassSecurityTrustHtml('<svg data-stub="diagram"></svg>');
+
+  render = vi.fn().mockImplementation(() => Promise.resolve(this.stubSvg));
+}
+
+async function flushMicrotasks(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 describe('App', () => {
@@ -32,7 +48,11 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: DiagramRendererService, useClass: DiagramRendererStub },
+      ],
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -254,5 +274,57 @@ describe('App', () => {
     httpMock.expectOne({ url: HISTORY_URL, method: 'DELETE' }).flush(null);
 
     expect(component.history()).toEqual([]);
+  });
+
+  it('should render the architecture diagram returned with the analysis', async () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as {
+      analyze: () => void;
+      repoUrl: { set: (v: string) => void };
+    };
+    const renderer = TestBed.inject(DiagramRendererService) as unknown as DiagramRendererStub;
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([]);
+
+    component.repoUrl.set(mockAnalysis().repoUrl);
+    component.analyze();
+    httpMock.expectOne(HISTORY_URL).flush(mockAnalysis());
+    httpMock.expectOne(HISTORY_URL).flush([]);
+
+    await flushMicrotasks();
+    fixture.detectChanges();
+
+    expect(renderer.render).toHaveBeenCalledWith(mockAnalysis().diagram);
+    const viewport = (fixture.nativeElement as HTMLElement).querySelector('.diagram-viewport');
+    expect(viewport?.innerHTML).toContain('data-stub="diagram"');
+  });
+
+  it('should clear the diagram when the current result is deleted', async () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as {
+      analyze: () => void;
+      repoUrl: { set: (v: string) => void };
+      diagramSvg: () => SafeHtml | null;
+    };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 'a1' })]);
+    fixture.detectChanges();
+
+    component.repoUrl.set(mockAnalysis().repoUrl);
+    component.analyze();
+    httpMock.expectOne(HISTORY_URL).flush(mockAnalysis({ id: 'a1' }));
+    httpMock.expectOne(HISTORY_URL).flush([mockAnalysis({ id: 'a1' })]);
+    await flushMicrotasks();
+    fixture.detectChanges();
+
+    const deleteBtn = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      '.delete-btn',
+    );
+    deleteBtn!.click();
+    httpMock.expectOne({ url: `${HISTORY_URL}/a1`, method: 'DELETE' }).flush(null);
+
+    expect(component.diagramSvg()).toBeNull();
   });
 });
