@@ -303,8 +303,7 @@
 </main>
 @if (diagramExpanded() && diagramSvg(); as svg) {
   <div class="diagram-modal-overlay">
-    <!-- Botón nativo (no un <div> con (click)) para la capa de cierre al hacer clic
-         fuera del modal: es operable por teclado sin necesitar onKeyDown/onKeyUp. -->
+    <!-- Botón nativo, no un <div>: cierra al clicar fuera y es accesible por teclado. -->
     <button
       type="button"
       class="diagram-modal-backdrop"

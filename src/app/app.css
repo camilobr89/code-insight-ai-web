@@ -130,10 +130,7 @@
   overflow-x: auto;
 }
 .diagram-viewport ::ng-deep svg {
-  /* Sin max-width: el SVG conserva su tamaño real (ver useMaxWidth:false en
-     DiagramRendererService) y el contenedor se encarga del scroll horizontal
-     cuando el diagrama es más ancho que la tarjeta, en vez de encogerlo hasta
-     volverlo ilegible. */
+  /* Sin max-width: conserva su tamaño real, el contenedor hace scroll. */
   display: block;
   margin: 0 auto;
   height: auto;
@@ -144,12 +141,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: 14px;
   z-index: 100;
 }
 .diagram-modal-backdrop {
-  /* Botón real (no un div con (click)) que cubre toda la superposición: se puede
-     activar con teclado de forma nativa, sin necesitar onKeyDown/onKeyUp. */
+  /* Botón real, no un div con (click): accesible por teclado sin handlers extra. */
   position: absolute;
   inset: 0;
   width: 100%;
@@ -169,9 +165,8 @@
   box-shadow:
     0 20px 60px #164c3d22,
     0 4px 20px #164c3d14;
-  max-width: min(1240px, 100%);
-  max-height: 100%;
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -214,7 +209,6 @@
     padding: 0;
   }
   .diagram-modal {
-    max-height: 100%;
     border-radius: 0;
   }
   .diagram-viewport-expanded {
