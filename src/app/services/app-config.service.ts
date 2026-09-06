@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
-/** Carga `config.json` en runtime; el pipeline lo reescribe en S3 tras cada deploy del API. */
+/**
+ * Carga `config.json` en runtime. Hoy es un valor estático (`{"apiUrl":""}`, mismo
+ * origen) porque CloudFront proxysea `/api/*` hacia el Load Balancer del backend —
+ * no depende de ninguna IP/DNS del backend, así que no necesita reescribirse nunca.
+ */
 @Injectable({ providedIn: 'root' })
 export class AppConfigService {
   private _apiUrl = environment.apiUrl;
