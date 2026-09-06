@@ -327,4 +327,40 @@ describe('App', () => {
 
     expect(component.diagramSvg()).toBeNull();
   });
+
+  it('should expand and close the diagram modal', async () => {
+    const fixture = TestBed.createComponent(App);
+    const component = fixture.componentInstance as unknown as {
+      analyze: () => void;
+      repoUrl: { set: (v: string) => void };
+      diagramExpanded: { set: (v: boolean) => void };
+    };
+
+    fixture.detectChanges();
+    httpMock.expectOne(HISTORY_URL).flush([]);
+
+    component.repoUrl.set(mockAnalysis().repoUrl);
+    component.analyze();
+    httpMock.expectOne(HISTORY_URL).flush(mockAnalysis());
+    httpMock.expectOne(HISTORY_URL).flush([]);
+    await flushMicrotasks();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.diagram-modal-backdrop')).toBeNull();
+
+    root.querySelector<HTMLButtonElement>('.expand-btn')!.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.diagram-modal-backdrop')).not.toBeNull();
+
+    root.querySelector<HTMLButtonElement>('.modal-close-btn')!.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.diagram-modal-backdrop')).toBeNull();
+
+    component.diagramExpanded.set(true);
+    fixture.detectChanges();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(root.querySelector('.diagram-modal-backdrop')).toBeNull();
+  });
 });

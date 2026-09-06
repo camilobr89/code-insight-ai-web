@@ -195,6 +195,20 @@
               <h2 id="diagram-title">Arquitectura inferida — {{ r.architecture }}</h2>
               <p>Generado a partir del patrón detectado y los componentes identificados.</p>
             </div>
+            @if (diagramSvg()) {
+              <button
+                type="button"
+                class="expand-btn"
+                title="Ver diagrama en grande"
+                aria-label="Ver diagrama en grande"
+                (click)="diagramExpanded.set(true)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
+                </svg>
+                Expandir
+              </button>
+            }
           </div>
           @if (diagramSvg(); as svg) {
             <div class="diagram-viewport" [innerHTML]="svg"></div>
@@ -287,3 +301,32 @@
     </aside>
   </div>
 </main>
+@if (diagramExpanded() && diagramSvg(); as svg) {
+  <div
+    class="diagram-modal-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="diagram-modal-title"
+    (click)="diagramExpanded.set(false)"
+  >
+    <div class="diagram-modal" (click)="$event.stopPropagation()">
+      <div class="diagram-modal-header">
+        <h2 id="diagram-modal-title">
+          Arquitectura inferida — {{ result()?.architecture }}
+        </h2>
+        <button
+          type="button"
+          class="modal-close-btn"
+          title="Cerrar"
+          aria-label="Cerrar diagrama"
+          (click)="diagramExpanded.set(false)"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </div>
+      <div class="diagram-viewport diagram-viewport-expanded" [innerHTML]="svg"></div>
+    </div>
+  </div>
+}
