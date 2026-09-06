@@ -302,14 +302,16 @@
   </div>
 </main>
 @if (diagramExpanded() && diagramSvg(); as svg) {
-  <div
-    class="diagram-modal-backdrop"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="diagram-modal-title"
-    (click)="diagramExpanded.set(false)"
-  >
-    <div class="diagram-modal" (click)="$event.stopPropagation()">
+  <div class="diagram-modal-overlay">
+    <!-- Botón nativo (no un <div> con (click)) para la capa de cierre al hacer clic
+         fuera del modal: es operable por teclado sin necesitar onKeyDown/onKeyUp. -->
+    <button
+      type="button"
+      class="diagram-modal-backdrop"
+      aria-label="Cerrar diagrama"
+      (click)="diagramExpanded.set(false)"
+    ></button>
+    <div class="diagram-modal" role="dialog" aria-modal="true" aria-labelledby="diagram-modal-title">
       <div class="diagram-modal-header">
         <h2 id="diagram-modal-title">
           Arquitectura inferida — {{ result()?.architecture }}

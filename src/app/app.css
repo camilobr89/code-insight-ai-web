@@ -138,17 +138,32 @@
   margin: 0 auto;
   height: auto;
 }
-.diagram-modal-backdrop {
+.diagram-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(20, 34, 30, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px;
   z-index: 100;
 }
+.diagram-modal-backdrop {
+  /* Botón real (no un div con (click)) que cubre toda la superposición: se puede
+     activar con teclado de forma nativa, sin necesitar onKeyDown/onKeyUp. */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: rgba(20, 34, 30, 0.55);
+  cursor: default;
+  appearance: none;
+  -webkit-appearance: none;
+}
 .diagram-modal {
+  position: relative;
   background: #fff;
   border-radius: 16px;
   box-shadow:
@@ -195,7 +210,7 @@
   height: auto;
 }
 @media (max-width: 740px) {
-  .diagram-modal-backdrop {
+  .diagram-modal-overlay {
     padding: 0;
   }
   .diagram-modal {
