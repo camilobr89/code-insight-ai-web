@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { SafeHtml } from '@angular/platform-browser';
 import { AnalysisService } from './services/analysis.service';
 import { DiagramRendererService } from './services/diagram-renderer.service';
+import { ServiceAvailabilityService } from './services/service-availability.service';
 import { Analysis } from './models/analysis.model';
 
 @Component({
@@ -14,6 +15,9 @@ import { Analysis } from './models/analysis.model';
 export class App implements OnInit {
   private readonly analysisService = inject(AnalysisService);
   private readonly diagramRenderer = inject(DiagramRendererService);
+  private readonly serviceAvailability = inject(ServiceAvailabilityService);
+
+  protected readonly servicesAvailable = this.serviceAvailability.available;
 
   protected readonly repoUrl = signal('');
   protected readonly forceRefresh = signal(false);

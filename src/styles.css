@@ -112,6 +112,19 @@ app-root {
   border-left: 1px solid #dfebe7;
   padding-left: 28px;
 }
+.service-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff3df;
+  color: #8b641c;
+  border-bottom: 1px solid #f3e0ad;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 16px;
+  text-align: center;
+}
 .page {
   max-width: 1240px;
   margin: auto;

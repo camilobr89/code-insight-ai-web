@@ -6,6 +6,13 @@
   </div>
   <span class="topbar-caption">Análisis de repositorios</span>
 </header>
+@if (!servicesAvailable()) {
+  <div class="service-banner" role="alert">
+    <span aria-hidden="true">⏰</span>
+    Los servicios están deshabilitados en este momento. Horario de disponibilidad: 8:00 a. m. – 6:00
+    p. m. (hora de Colombia).
+  </div>
+}
 <main class="page" id="workspace">
   <div class="workspace">
     <div class="analysis-column">

@@ -370,6 +370,10 @@
   .workspace-note {
     font-size: 11px;
   }
+  .service-banner {
+    font-size: 11px;
+    padding: 8px 14px;
+  }
   .result-heading h2 {
     font-size: 22px;
   }
